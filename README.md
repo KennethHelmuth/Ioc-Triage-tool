@@ -12,7 +12,6 @@
     <a href="#export"><img src="https://img.shields.io/badge/Export-JSON_%7C_CSV-orange?style=flat-square" alt="Export Formats"></a>
     <img src="https://img.shields.io/badge/Language-Rust-red?style=flat-square&logo=rust" alt="Rust">
     <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License">
-    [![CI](https://github.com/KennethHelmuth/Ioc-Triage-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/KennethHelmuth/Ioc-Triage-tool/actions/workflows/ci.yml)
   </p>
 </p>
 
