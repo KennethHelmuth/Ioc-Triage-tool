@@ -2,6 +2,15 @@
 name = "ioc-triage"
 version = "0.1.0"
 edition = "2021"
+description = "A professional interactive CLI tool for CTI analysts and OSINT investigators to parse, triage, tag, and export Indicators of Compromise"
+authors = ["KennethHelmuth"]
+license = "MIT"
+repository = "https://github.com/KennethHelmuth/Ioc-Triage-tool"
+homepage = "https://github.com/KennethHelmuth/Ioc-Triage-tool"
+keywords = ["cti", "osint", "cybersecurity", "cli", "ioc"]
+categories = ["command-line-utilities"]
+readme = "README.md"
+rust-version = "1.70"
 
 [dependencies]
 ratatui = "0.26"

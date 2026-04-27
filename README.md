@@ -12,6 +12,7 @@
     <a href="#export"><img src="https://img.shields.io/badge/Export-JSON_%7C_CSV-orange?style=flat-square" alt="Export Formats"></a>
     <img src="https://img.shields.io/badge/Language-Rust-red?style=flat-square&logo=rust" alt="Rust">
     <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License">
+    [![CI](https://github.com/KennethHelmuth/Ioc-Triage-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/KennethHelmuth/Ioc-Triage-tool/actions/workflows/ci.yml)
   </p>
 </p>
 
@@ -91,10 +92,18 @@ Files are timestamped: `ioc_triage_YYYYMMDD_HHMMSS.json`
 
 ## 🚀 Installation
 
-### Prerequisites
-- [Rust](https://rustup.rs/) (1.70+ recommended)
+### Option 1 — One-line installer (Linux/macOS)
+```bash
+curl -fsSL https://raw.githubusercontent.com/KennethHelmuth/Ioc-Triage-tool/main/install.sh | bash
+```
 
-### Build from Source
+### Option 2 — Download binary directly
+Go to [Releases](https://github.com/KennethHelmuth/Ioc-Triage-tool/releases/latest) and download the binary for your platform.
+
+### Option 3 — Build from source
+
+#### Prerequisites
+- [Rust](https://rustup.rs/) (1.70+ recommended)
 
 ```bash
 git clone https://github.com/KennethHelmuth/Ioc-Triage-tool.git
