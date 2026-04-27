@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">🛡️ IOC Triage</h1>
   <p align="center">
-    <strong>A professional interactive CLI tool for CTI analysts and OSINT investigators</strong>
+    <strong>A terminal-based TUI for parsing and triaging Indicators of Compromise (IOCs).</strong>
   </p>
   <p align="center">
     Parse, triage, analyze, tag, and export Indicators of Compromise — directly from your terminal.
@@ -228,6 +228,14 @@ The parser module includes **15 unit tests** covering:
 ## 🤝 Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
+
+---
+
+## ⚠️ Status
+
+Early release (v0.1.0).
+
+Core features are implemented and tested, but edge cases and UX will continue to improve.
 
 ---
 
