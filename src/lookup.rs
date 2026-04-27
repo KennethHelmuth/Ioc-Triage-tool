@@ -100,10 +100,7 @@ pub fn generate_lookup_urls(value: &str, ioc_type: &IocType) -> Vec<LookupUrl> {
                 },
                 LookupUrl {
                     platform: "Exploit-DB".to_string(),
-                    url: format!(
-                        "https://www.exploit-db.com/search?cve={}",
-                        without_prefix
-                    ),
+                    url: format!("https://www.exploit-db.com/search?cve={}", without_prefix),
                 },
                 LookupUrl {
                     platform: "MITRE ATT&CK".to_string(),
@@ -137,13 +134,7 @@ fn url_encode(input: &str) -> String {
     let mut encoded = String::with_capacity(input.len() * 3);
     for byte in input.bytes() {
         match byte {
-            b'A'..=b'Z'
-            | b'a'..=b'z'
-            | b'0'..=b'9'
-            | b'-'
-            | b'_'
-            | b'.'
-            | b'~' => {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
                 encoded.push(byte as char);
             }
             _ => {

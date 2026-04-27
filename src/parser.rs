@@ -281,8 +281,7 @@ mod tests {
 
     #[test]
     fn test_deduplication() {
-        let (entries, total, dupes) =
-            parse_iocs("192.168.1.1, 192.168.1.1, 192.168.1.1, 10.0.0.1");
+        let (entries, total, dupes) = parse_iocs("192.168.1.1, 192.168.1.1, 192.168.1.1, 10.0.0.1");
         assert_eq!(entries.len(), 2);
         assert_eq!(total, 4);
         assert_eq!(dupes, 2);
