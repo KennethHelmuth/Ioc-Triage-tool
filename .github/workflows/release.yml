@@ -80,9 +80,9 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           mkdir release_package
-          cp target/${{ matrix.target }}/release/${{ matrix.bin_name }} release_package/
-          cp README.md release_package/
-          cp LICENSE release_package/ 2>/dev/null || true
+          Copy-Item target/${{ matrix.target }}/release/${{ matrix.bin_name }} release_package/
+          Copy-Item README.md release_package/
+          Copy-Item LICENSE release_package/ -ErrorAction SilentlyContinue
           cd release_package
           Compress-Archive -Path * -DestinationPath ../ioc-triage-${{ steps.get_version.outputs.VERSION }}-${{ matrix.target }}${{ matrix.archive_ext }}
         shell: pwsh
