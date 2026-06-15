@@ -28,8 +28,8 @@ Paste a blob of raw text — IOC Triage automatically detects, classifies, dedup
 ### 🎯 Automatic IOC Detection
 Paste raw text in any format and IOC Triage instantly identifies:
 
-| Type | Example | Priority |
-|------|---------|----------|
+| Type | Example / Format | Priority |
+|------|------------------|----------|
 | **IPv4** | `192.168.1.1` | Medium |
 | **IPv6** | `2001:0db8:85a3::8a2e:0370:7334` | Medium |
 | **Domain** | `evil-domain.com` | Medium |
@@ -39,39 +39,46 @@ Paste raw text in any format and IOC Triage instantly identifies:
 | **SHA256** | `e3b0c44298fc1c149afbf4c8...` | High |
 | **Email** | `attacker@evil.com` | Low |
 | **CVE** | `CVE-2024-12345` | High |
-| **Bitcoin Wallet** | `1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa` | Medium |
+| **Crypto Wallet** | `bc1q...` (SegWit), `0x...` (ETH), `4...` (XMR), `L...` (LTC), `D...` (DOGE) | Medium |
 
 ### 🔓 Defanging Support
 Automatically normalizes common defanged formats:
-- `hxxp://` → `http://`
-- `hxxps://` → `https://`
+- `hxxp://` / `hXXp://` → `http://`
+- `hxxps://` / `hXXps://` → `https://`
 - `[.]` / `(.)` / `[dot]` → `.`
 - `[:]` → `:`
 - `[@]` / `[at]` → `@`
 
 ### 🌐 One-Click Threat Intel Lookups
-Every detected IOC gets mapped to relevant lookup URLs across **30+ platforms**:
+Every detected IOC gets mapped to relevant lookup URLs across **35+ platforms**:
 
-| Platform | IOC Types |
-|----------|-----------|
-| **VirusTotal** | IPs, Domains, URLs, Hashes |
-| **AbuseIPDB** | IPs |
-| **Shodan** | IPs |
-| **GreyNoise** | IPs |
-| **IPinfo** | IPs |
-| **URLScan.io** | Domains, URLs |
-| **DomainTools** | Domains |
-| **Wayback Machine** | Domains |
-| **MalwareBazaar** | Hashes |
-| **Hybrid Analysis** | Hashes |
-| **ANY.RUN** | Hashes |
-| **NVD** | CVEs |
-| **Exploit-DB** | CVEs |
-| **MITRE ATT&CK** | CVEs |
-| **CVE Details** | CVEs |
-| **HaveIBeenPwned** | Emails |
-| **Blockchain.com** | Bitcoin |
-| **Blockchair** | Bitcoin |
+| Platform | IOC Types | Description / Formats |
+|----------|-----------|-----------------------|
+| **VirusTotal** | IPs, Domains, URLs, Hashes | URL-safe base64-encoded URL checks, file hash checks |
+| **AbuseIPDB** | IPs | IP reputation and abuse reporting history |
+| **Shodan** | IPs | Host information, open ports, and banners |
+| **GreyNoise** | IPs | Noise vs targeted attack scanner |
+| **IPinfo** | IPs | IP geolocation and ASN mapping |
+| **Cisco Talos** | IPs, Domains | Global intelligence and web reputation network |
+| **URLScan.io** | Domains, URLs | Interactive web crawls (Lucene-quoted queries) |
+| **DomainTools** | Domains | WHOIS and hosting records |
+| **Wayback Machine** | Domains, URLs | Historical page contents (`/*` recursive crawls for domains) |
+| **CRT.sh** | Domains | SSL/TLS certificates and subdomain discovery |
+| **MalwareBazaar** | Hashes | Direct sample sample/browse (SHA256, SHA1, MD5) |
+| **Hybrid Analysis** | Hashes | Automated malware analysis sandbox search |
+| **ANY.RUN** | Hashes | Public task submissions database text search |
+| **AlienVault OTX** | Hashes | Open Threat Exchange indicator details |
+| **NVD** | CVEs | National Vulnerability Database vulnerability details |
+| **MITRE CVE** | CVEs | Official CVE Dictionary reference entries |
+| **CVE Details** | CVEs | Consolidated vulnerability history (trailing slash formatted) |
+| **MITRE ATT&CK** | CVEs | Adversary tactics, techniques, and procedures mapping |
+| **HaveIBeenPwned** | Emails | Email data breach account checks |
+| **Epieos** | Emails | Reverse email search and osint profiling |
+| **IntelX** | Emails | Intelligence X data leak searches |
+| **Etherscan** | Crypto | Ethereum block explorer |
+| **XMRChain** | Crypto | Monero block explorer (XMR privacy check) |
+| **Blockchain.com** | Crypto | Bitcoin block explorer |
+| **Blockchair** | Crypto | Universal multi-coin explorer (BTC, ETH, LTC, DOGE) |
 
 Press `O` to open all URLs for an IOC, or `1-9` to open a specific one.
 
@@ -127,11 +134,14 @@ cargo run
 
 | Key | Action |
 |-----|--------|
-| `↑` / `↓` | Navigate rows |
+| `Tab` / `Shift+Tab` | Cycle active view tab forward / backward |
+| `F1` / `F2` / `F3` / `F4` | Switch view directly (Dashboard / Grid / Lookups / Settings) |
+| `↑` / `↓` | Navigate rows / settings / platforms |
 | `PgUp` / `PgDn` | Jump 10 rows |
 | `Home` / `End` | Jump to first/last row |
-| `Space` | Toggle multi-select checkbox for row |
-| `A` / `U` | Select all / Unselect all filtered rows |
+| `Space` | Toggle checkbox (indicator selection or lookup platforms) |
+| `A` / `U` | Select all / Unselect all (filtered rows or lookup platforms) |
+| `:` | Open Vim-style command palette (execute `:help`, `:clear`, `:tag`, `:filter`, `:sort`, `:limit`, `:dir`) |
 | `/` | Enter search query mode (filters by value/notes) |
 | `F` / `Shift+F` | Cycle tag filter forward / backward |
 | `Y` | Open interactive type filter modal |
@@ -174,7 +184,7 @@ ioc-triage/
     ├── main.rs        # Entry point, terminal setup, event loop
     ├── models.rs      # Core data structures (IocEntry, AppState, enums)
     ├── config.rs      # Environment-based configuration
-    ├── parser.rs      # Regex-based IOC detection with 15 unit tests
+    ├── parser.rs      # Regex-based IOC detection with unit tests
     ├── lookup.rs      # Threat intel URL generation (30+ platforms)
     ├── tui.rs         # Full ratatui TUI (table, panels, modals, keybindings)
     └── export.rs      # JSON & CSV export with session metadata
@@ -196,8 +206,9 @@ ioc-triage/
 cargo test
 ```
 
-The parser module includes **15 unit tests** covering:
-- Each IOC type detection
+The test suite includes **20 comprehensive unit tests** covering:
+- Threat intel lookup URL generation & Base64 encoder
+- Each IOC type detection (including Legacy, SegWit/Taproot BTC, ETH, XMR, LTC, DOGE, XRP)
 - Defanged input normalization
 - Mixed delimiter handling
 - Duplicate detection and counting
@@ -231,9 +242,9 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ## ⚠️ Status
 
-Early release (v0.1.0).
+Stable Release (v1.0.0).
 
-Core features are implemented and tested, but edge cases and UX will continue to improve.
+Fully revamped workspace with production-grade TUI responsiveness, robust styling, and comprehensive OSINT integration.
 
 ---
 
