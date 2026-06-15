@@ -91,15 +91,7 @@ Files are timestamped: `ioc_triage_YYYYMMDD_HHMMSS.json`
 
 ## 🚀 Installation
 
-### Option 1 — One-line installer (Linux/macOS)
-```bash
-curl -fsSL https://raw.githubusercontent.com/KennethHelmuth/Ioc-Triage-tool/main/install.sh | bash
-```
-
-### Option 2 — Download binary directly
-Go to [Releases](https://github.com/KennethHelmuth/Ioc-Triage-tool/releases/latest) and download the binary for your platform.
-
-### Option 3 — Build from source
+### Build from source
 
 #### Prerequisites
 - [Rust](https://rustup.rs/) (1.70+ recommended)
