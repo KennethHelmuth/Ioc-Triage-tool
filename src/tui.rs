@@ -99,7 +99,8 @@ pub fn draw(f: &mut Frame, state: &AppState, _config: &Config) {
         AppView::Dashboard => draw_dashboard_view(f, chunks[1], state),
         AppView::TriageList => {
             let filtered = state.get_filtered_entries();
-            let show_panel = state.show_side_panel && size.width >= 100 && !state.entries.is_empty();
+            let show_panel =
+                state.show_side_panel && size.width >= 100 && !state.entries.is_empty();
             if show_panel {
                 let mid = Layout::default()
                     .direction(Direction::Horizontal)
@@ -141,7 +142,7 @@ fn draw_tabs_bar(f: &mut Frame, area: Rect, state: &AppState) {
         (AppView::LookupManager, " [F3] Lookup Manager "),
         (AppView::Settings, " [F4] Settings "),
     ];
-    
+
     let mut spans = Vec::new();
     for (view, label) in &tabs {
         let is_active = state.active_view == *view;
@@ -151,32 +152,41 @@ fn draw_tabs_bar(f: &mut Frame, area: Rect, state: &AppState) {
                 .bg(Color::Cyan)
                 .add_modifier(Modifier::BOLD)
         } else {
-            Style::default()
-                .fg(Color::Gray)
+            Style::default().fg(Color::Gray)
         };
         spans.push(Span::styled(*label, style));
         spans.push(Span::raw(" "));
     }
-    
+
     let mut filter_spans = Vec::new();
     if !state.search_query.is_empty() {
-        filter_spans.push(Span::styled(" 🔍 Search Active", Style::default().fg(Color::Yellow)));
+        filter_spans.push(Span::styled(
+            " 🔍 Search Active",
+            Style::default().fg(Color::Yellow),
+        ));
     }
     if state.tag_filter != TagFilter::All {
-        filter_spans.push(Span::styled(" 🏷️ Tag Filtered", Style::default().fg(Color::Green)));
+        filter_spans.push(Span::styled(
+            " 🏷️ Tag Filtered",
+            Style::default().fg(Color::Green),
+        ));
     }
     if !state.type_filters.is_empty() {
-        filter_spans.push(Span::styled(" ⚙️ Type Filtered", Style::default().fg(Color::Cyan)));
+        filter_spans.push(Span::styled(
+            " ⚙️ Type Filtered",
+            Style::default().fg(Color::Cyan),
+        ));
     }
-    
+
     let left_paragraph = Paragraph::new(Line::from(spans));
-    let right_paragraph = Paragraph::new(Line::from(filter_spans)).alignment(ratatui::layout::Alignment::Right);
-    
+    let right_paragraph =
+        Paragraph::new(Line::from(filter_spans)).alignment(ratatui::layout::Alignment::Right);
+
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
         .split(area);
-        
+
     f.render_widget(left_paragraph, chunks[0]);
     f.render_widget(right_paragraph, chunks[1]);
 }
@@ -186,7 +196,7 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(55), Constraint::Percentage(45)])
         .split(area);
-        
+
     let left_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -195,24 +205,39 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
             Constraint::Min(5),    // Type Breakdown
         ])
         .split(chunks[0]);
-        
+
     let total = state.entries.len();
     let tagged = state.tagged_count();
     let dupes = state.duplicate_count;
-    
+
     let metrics_text = vec![
         Line::from(vec![
             Span::styled("  Total Parsed:  ", Style::default().fg(Color::White)),
-            Span::styled(format!("{:<6}", state.total_input_count), Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                format!("{:<6}", state.total_input_count),
+                Style::default()
+                    .fg(Color::Cyan)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled("  Duplicates:  ", Style::default().fg(Color::White)),
             Span::styled(format!("{:<6}", dupes), Style::default().fg(Color::Red)),
         ]),
         Line::from(""),
         Line::from(vec![
             Span::styled("  Unique IOCs:   ", Style::default().fg(Color::White)),
-            Span::styled(format!("{:<6}", total), Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                format!("{:<6}", total),
+                Style::default()
+                    .fg(Color::Green)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled("  Tagged Items: ", Style::default().fg(Color::White)),
-            Span::styled(format!("{:<6}", tagged), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                format!("{:<6}", tagged),
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
+            ),
         ]),
     ];
     let metrics_block = Paragraph::new(metrics_text).block(
@@ -222,7 +247,7 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
             .border_style(Style::default().fg(Color::Blue)),
     );
     f.render_widget(metrics_block, left_chunks[0]);
-    
+
     let mut mal = 0;
     let mut sus = 0;
     let mut cln = 0;
@@ -238,22 +263,21 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
         }
     }
     let total_tags = total;
-    
+
     let draw_bar = |count: usize, total: usize, width: usize| -> String {
         if total == 0 {
             return "░".repeat(width);
         }
         let filled = (count * width) / total;
-        format!(
-            "{}{}",
-            "█".repeat(filled),
-            "░".repeat(width - filled)
-        )
+        format!("{}{}", "█".repeat(filled), "░".repeat(width - filled))
     };
-    
-    let bar_width = (left_chunks[1].width as usize).saturating_sub(25).max(10).min(30);
+
+    let bar_width = (left_chunks[1].width as usize)
+        .saturating_sub(25)
+        .max(10)
+        .min(30);
     let mut tag_lines = Vec::new();
-    
+
     let tags_stats = [
         ("MALICIOUS       ", mal, Color::Red),
         ("SUSPICIOUS      ", sus, Color::Yellow),
@@ -261,13 +285,23 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
         ("FALSE POSITIVE  ", fp, Color::DarkGray),
         ("UNTAGGED        ", unt, Color::White),
     ];
-    
+
     for (label, count, color) in tags_stats {
-        let pct = if total_tags > 0 { (count * 100) / total_tags } else { 0 };
+        let pct = if total_tags > 0 {
+            (count * 100) / total_tags
+        } else {
+            0
+        };
         tag_lines.push(Line::from(vec![
             Span::styled(label, Style::default().fg(color)),
-            Span::styled(draw_bar(count, total_tags, bar_width), Style::default().fg(color)),
-            Span::styled(format!(" {:>3}% ({})", pct, count), Style::default().fg(Color::Gray)),
+            Span::styled(
+                draw_bar(count, total_tags, bar_width),
+                Style::default().fg(color),
+            ),
+            Span::styled(
+                format!(" {:>3}% ({})", pct, count),
+                Style::default().fg(Color::Gray),
+            ),
         ]));
     }
     let tag_block = Paragraph::new(tag_lines).block(
@@ -277,7 +311,7 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
             .border_style(Style::default().fg(Color::Blue)),
     );
     f.render_widget(tag_block, left_chunks[1]);
-    
+
     let mut ipv4 = 0;
     let mut ipv6 = 0;
     let mut domain = 0;
@@ -288,7 +322,7 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
     let mut email = 0;
     let mut cve = 0;
     let mut btc = 0;
-    
+
     for e in &state.entries {
         match e.ioc_type {
             IocType::IPv4 => ipv4 += 1,
@@ -304,7 +338,7 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
             _ => {}
         }
     }
-    
+
     let type_stats = [
         ("IPv4   ", ipv4, Color::Cyan),
         ("IPv6   ", ipv6, Color::Cyan),
@@ -317,23 +351,39 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
         ("CVE    ", cve, Color::Yellow),
         ("Crypto ", btc, Color::Gray),
     ];
-    
+
     let mut type_lines = Vec::new();
-    let max_count = type_stats.iter().map(|(_, count, _)| *count).max().unwrap_or(0).max(1);
-    let type_bar_width = (left_chunks[2].width as usize).saturating_sub(18).max(10).min(25);
-    
+    let max_count = type_stats
+        .iter()
+        .map(|(_, count, _)| *count)
+        .max()
+        .unwrap_or(0)
+        .max(1);
+    let type_bar_width = (left_chunks[2].width as usize)
+        .saturating_sub(18)
+        .max(10)
+        .min(25);
+
     for (label, count, color) in type_stats {
         if count == 0 {
             continue;
         }
         type_lines.push(Line::from(vec![
             Span::styled(format!("  {} ", label), Style::default().fg(color)),
-            Span::styled(draw_bar(count, max_count, type_bar_width), Style::default().fg(color)),
+            Span::styled(
+                draw_bar(count, max_count, type_bar_width),
+                Style::default().fg(color),
+            ),
             Span::styled(format!(" ({})", count), Style::default().fg(Color::White)),
         ]));
     }
     if type_lines.is_empty() {
-        type_lines.push(Line::from(Span::styled("  No indicators parsed yet. Press I to paste raw text.", Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC))));
+        type_lines.push(Line::from(Span::styled(
+            "  No indicators parsed yet. Press I to paste raw text.",
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::ITALIC),
+        )));
     }
     let type_block = Paragraph::new(type_lines).block(
         Block::default()
@@ -342,16 +392,24 @@ fn draw_dashboard_view(f: &mut Frame, area: Rect, state: &AppState) {
             .border_style(Style::default().fg(Color::Blue)),
     );
     f.render_widget(type_block, left_chunks[2]);
-    
+
     let mut log_lines = Vec::new();
     let log_count = state.session_logs.len();
     let max_logs = (chunks[1].height as usize).saturating_sub(4);
     let start_idx = log_count.saturating_sub(max_logs);
     for log in &state.session_logs[start_idx..] {
-        log_lines.push(Line::from(Span::styled(log, Style::default().fg(Color::Cyan))));
+        log_lines.push(Line::from(Span::styled(
+            log,
+            Style::default().fg(Color::Cyan),
+        )));
     }
     if log_lines.is_empty() {
-        log_lines.push(Line::from(Span::styled("  No activity recorded in this session.", Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC))));
+        log_lines.push(Line::from(Span::styled(
+            "  No activity recorded in this session.",
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::ITALIC),
+        )));
     }
     let log_block = Paragraph::new(log_lines).block(
         Block::default()
@@ -367,13 +425,16 @@ fn draw_lookup_manager_view(f: &mut Frame, area: Rect, state: &AppState) {
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(area);
-        
+
     let entry_opt = state.selected_entry();
     let mut details_lines = Vec::new();
     if let Some(entry) = entry_opt {
-        details_lines.push(Line::from(vec![
-            Span::styled("Selected Indicator details", Style::default().fg(Color::Magenta).add_modifier(Modifier::BOLD)),
-        ]));
+        details_lines.push(Line::from(vec![Span::styled(
+            "Selected Indicator details",
+            Style::default()
+                .fg(Color::Magenta)
+                .add_modifier(Modifier::BOLD),
+        )]));
         details_lines.push(Line::from(""));
         details_lines.push(Line::from(vec![
             Span::styled("Value:    ", Style::default().fg(Color::Cyan)),
@@ -381,11 +442,17 @@ fn draw_lookup_manager_view(f: &mut Frame, area: Rect, state: &AppState) {
         ]));
         details_lines.push(Line::from(vec![
             Span::styled("Type:     ", Style::default().fg(Color::Cyan)),
-            Span::styled(entry.ioc_type.to_string(), Style::default().fg(ioc_color(&entry.ioc_type))),
+            Span::styled(
+                entry.ioc_type.to_string(),
+                Style::default().fg(ioc_color(&entry.ioc_type)),
+            ),
         ]));
         details_lines.push(Line::from(vec![
             Span::styled("Priority: ", Style::default().fg(Color::Cyan)),
-            Span::styled(entry.priority.to_string(), Style::default().fg(priority_color(&entry.priority))),
+            Span::styled(
+                entry.priority.to_string(),
+                Style::default().fg(priority_color(&entry.priority)),
+            ),
         ]));
         details_lines.push(Line::from(vec![
             Span::styled("Tag:      ", Style::default().fg(Color::Cyan)),
@@ -394,15 +461,30 @@ fn draw_lookup_manager_view(f: &mut Frame, area: Rect, state: &AppState) {
         details_lines.push(Line::from(""));
         details_lines.push(Line::from(vec![
             Span::styled("Notes:    ", Style::default().fg(Color::Cyan)),
-            Span::styled(if entry.note.is_empty() { "[None]" } else { &entry.note }, Style::default().fg(Color::White)),
+            Span::styled(
+                if entry.note.is_empty() {
+                    "[None]"
+                } else {
+                    &entry.note
+                },
+                Style::default().fg(Color::White),
+            ),
         ]));
         details_lines.push(Line::from(""));
         details_lines.push(Line::from(vec![
             Span::styled("Created:  ", Style::default().fg(Color::DarkGray)),
-            Span::styled(entry.created_at.format("%Y-%m-%d %H:%M:%S UTC").to_string(), Style::default().fg(Color::DarkGray)),
+            Span::styled(
+                entry.created_at.format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+                Style::default().fg(Color::DarkGray),
+            ),
         ]));
     } else {
-        details_lines.push(Line::from(Span::styled("No indicators loaded in triage list.", Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC))));
+        details_lines.push(Line::from(Span::styled(
+            "No indicators loaded in triage list.",
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::ITALIC),
+        )));
     }
     let details_block = Paragraph::new(details_lines).block(
         Block::default()
@@ -411,41 +493,68 @@ fn draw_lookup_manager_view(f: &mut Frame, area: Rect, state: &AppState) {
             .border_style(Style::default().fg(Color::Blue)),
     );
     f.render_widget(details_block, chunks[0]);
-    
+
     let mut lookup_lines = Vec::new();
     if let Some(entry) = entry_opt {
-        lookup_lines.push(Line::from(Span::styled("Select platforms to look up or copy:", Style::default().fg(Color::White))));
+        lookup_lines.push(Line::from(Span::styled(
+            "Select platforms to look up or copy:",
+            Style::default().fg(Color::White),
+        )));
         lookup_lines.push(Line::from(""));
-        
+
         for (i, lu) in entry.lookup_urls.iter().enumerate() {
             let is_sel = i == state.lookup_selected_index;
             let is_chk = state.lookup_checked_platforms.contains(&lu.platform);
-            
+
             let chk_str = if is_chk { " ☑ " } else { " ☐ " };
             let cursor = if is_sel { "➤ " } else { "  " };
-            
+
             let style = if is_sel {
-                Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD)
             } else if is_chk {
                 Style::default().fg(Color::Green)
             } else {
                 Style::default().fg(Color::White)
             };
-            
+
             lookup_lines.push(Line::from(vec![
                 Span::raw(cursor),
-                Span::styled(chk_str, if is_chk { Style::default().fg(Color::Green) } else { Style::default().fg(Color::DarkGray) }),
+                Span::styled(
+                    chk_str,
+                    if is_chk {
+                        Style::default().fg(Color::Green)
+                    } else {
+                        Style::default().fg(Color::DarkGray)
+                    },
+                ),
                 Span::styled(format!("{:<15}", lu.platform), style),
-                Span::styled(truncate(&lu.url, (chunks[1].width as usize).saturating_sub(25)), Style::default().fg(Color::DarkGray)),
+                Span::styled(
+                    truncate(&lu.url, (chunks[1].width as usize).saturating_sub(25)),
+                    Style::default().fg(Color::DarkGray),
+                ),
             ]));
         }
-        
+
         lookup_lines.push(Line::from(""));
-        lookup_lines.push(Line::from(Span::styled("Controls:", Style::default().fg(Color::Cyan))));
-        lookup_lines.push(Line::from("  [Space] Toggle checkbox  [A] Select All  [U] Unselect All"));
-        lookup_lines.push(Line::from("  [O] Open checked URLs    [C] Copy checked URLs to clipboard"));
+        lookup_lines.push(Line::from(Span::styled(
+            "Controls:",
+            Style::default().fg(Color::Cyan),
+        )));
+        lookup_lines.push(Line::from(
+            "  [Space] Toggle checkbox  [A] Select All  [U] Unselect All",
+        ));
+        lookup_lines.push(Line::from(
+            "  [O] Open checked URLs    [C] Copy checked URLs to clipboard",
+        ));
     } else {
-        lookup_lines.push(Line::from(Span::styled("Select an indicator in Triage List first.", Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC))));
+        lookup_lines.push(Line::from(Span::styled(
+            "Select an indicator in Triage List first.",
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::ITALIC),
+        )));
     }
     let lookup_block = Paragraph::new(lookup_lines).block(
         Block::default()
@@ -461,16 +570,19 @@ fn draw_settings_view(f: &mut Frame, area: Rect, state: &AppState) {
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(8), Constraint::Min(5)])
         .split(area);
-        
+
     let fields = [
         ("EXPORT_DIR", state.export_dir.to_string_lossy().to_string()),
         ("MAX_IOC_LIMIT", state.max_ioc_limit.to_string()),
     ];
-    
+
     let mut fields_lines = Vec::new();
-    fields_lines.push(Line::from(Span::styled("Console Configurations (Use ↑/↓, Enter to Edit)", Style::default().fg(Color::White))));
+    fields_lines.push(Line::from(Span::styled(
+        "Console Configurations (Use ↑/↓, Enter to Edit)",
+        Style::default().fg(Color::White),
+    )));
     fields_lines.push(Line::from(""));
-    
+
     for (i, (name, val)) in fields.iter().enumerate() {
         let is_sel = i == state.settings_selected_index;
         let prefix = if is_sel { "➤ " } else { "  " };
@@ -478,16 +590,28 @@ fn draw_settings_view(f: &mut Frame, area: Rect, state: &AppState) {
             Span::raw(prefix),
             Span::styled(format!("{:<18}: ", name), Style::default().fg(Color::Cyan)),
         ];
-        
+
         if is_sel && state.settings_active_edit {
-            spans.push(Span::styled(format!("{}█", state.settings_text_buffer), Style::default().fg(Color::Yellow).add_modifier(Modifier::UNDERLINED)));
+            spans.push(Span::styled(
+                format!("{}█", state.settings_text_buffer),
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::UNDERLINED),
+            ));
         } else {
-            spans.push(Span::styled(val, if is_sel { Style::default().fg(Color::Yellow) } else { Style::default().fg(Color::White) }));
+            spans.push(Span::styled(
+                val,
+                if is_sel {
+                    Style::default().fg(Color::Yellow)
+                } else {
+                    Style::default().fg(Color::White)
+                },
+            ));
         }
-        
+
         fields_lines.push(Line::from(spans));
     }
-    
+
     let fields_block = Paragraph::new(fields_lines).block(
         Block::default()
             .borders(Borders::ALL)
@@ -495,19 +619,38 @@ fn draw_settings_view(f: &mut Frame, area: Rect, state: &AppState) {
             .border_style(Style::default().fg(Color::Blue)),
     );
     f.render_widget(fields_block, chunks[0]);
-    
+
     let mut info_lines = Vec::new();
-    info_lines.push(Line::from(Span::styled("Export Actions:", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))));
-    info_lines.push(Line::from("  Press [J] to trigger instant JSON session export"));
-    info_lines.push(Line::from("  Press [C] to trigger instant CSV session export"));
+    info_lines.push(Line::from(Span::styled(
+        "Export Actions:",
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
+    )));
+    info_lines.push(Line::from(
+        "  Press [J] to trigger instant JSON session export",
+    ));
+    info_lines.push(Line::from(
+        "  Press [C] to trigger instant CSV session export",
+    ));
     info_lines.push(Line::from(""));
-    info_lines.push(Line::from(Span::styled("Environment variables default fallbacks:", Style::default().fg(Color::Cyan))));
+    info_lines.push(Line::from(Span::styled(
+        "Environment variables default fallbacks:",
+        Style::default().fg(Color::Cyan),
+    )));
     info_lines.push(Line::from("  EXPORT_DIR    - sets output folder path"));
-    info_lines.push(Line::from("  MAX_IOC_LIMIT - restricts maximum indicators loaded"));
+    info_lines.push(Line::from(
+        "  MAX_IOC_LIMIT - restricts maximum indicators loaded",
+    ));
     info_lines.push(Line::from(""));
-    info_lines.push(Line::from(Span::styled("Command Palette:", Style::default().fg(Color::Cyan))));
-    info_lines.push(Line::from("  Press [:] in Normal mode to type commands directly (e.g. :tag mal, :clear)"));
-    
+    info_lines.push(Line::from(Span::styled(
+        "Command Palette:",
+        Style::default().fg(Color::Cyan),
+    )));
+    info_lines.push(Line::from(
+        "  Press [:] in Normal mode to type commands directly (e.g. :tag mal, :clear)",
+    ));
+
     let info_block = Paragraph::new(info_lines).block(
         Block::default()
             .borders(Borders::ALL)
@@ -519,8 +662,8 @@ fn draw_settings_view(f: &mut Frame, area: Rect, state: &AppState) {
 
 fn draw_command_prompt(f: &mut Frame, area: Rect, state: &AppState) {
     let text = format!(":{}█", state.command_buffer);
-    let prompt = Paragraph::new(text)
-        .style(Style::default().fg(Color::Cyan).bg(Color::Indexed(236)));
+    let prompt =
+        Paragraph::new(text).style(Style::default().fg(Color::Cyan).bg(Color::Indexed(236)));
     f.render_widget(prompt, area);
 }
 
@@ -535,20 +678,58 @@ fn draw_table(f: &mut Frame, area: Rect, state: &AppState, filtered: &[&IocEntry
         state.scroll_offset
     };
 
-    let mut header_cells = vec![
-        Cell::from(" Sel").style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
-    ];
+    let mut header_cells = vec![Cell::from(" Sel").style(
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
+    )];
     if area.width >= 70 {
-        header_cells.push(Cell::from(" # ").style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)));
+        header_cells.push(
+            Cell::from(" # ").style(
+                Style::default()
+                    .fg(Color::Cyan)
+                    .add_modifier(Modifier::BOLD),
+            ),
+        );
     }
-    header_cells.push(Cell::from("Indicator").style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)));
-    header_cells.push(Cell::from("Type").style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)));
+    header_cells.push(
+        Cell::from("Indicator").style(
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
+    );
+    header_cells.push(
+        Cell::from("Type").style(
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
+    );
     if area.width >= 70 {
-        header_cells.push(Cell::from("Pri").style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)));
+        header_cells.push(
+            Cell::from("Pri").style(
+                Style::default()
+                    .fg(Color::Cyan)
+                    .add_modifier(Modifier::BOLD),
+            ),
+        );
     }
-    header_cells.push(Cell::from("Tag").style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)));
+    header_cells.push(
+        Cell::from("Tag").style(
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
+    );
     if area.width >= 90 {
-        header_cells.push(Cell::from("Note").style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)));
+        header_cells.push(
+            Cell::from("Note").style(
+                Style::default()
+                    .fg(Color::Cyan)
+                    .add_modifier(Modifier::BOLD),
+            ),
+        );
     }
     let header = Row::new(header_cells).height(1).bottom_margin(1);
 
@@ -560,7 +741,7 @@ fn draw_table(f: &mut Frame, area: Rect, state: &AppState, filtered: &[&IocEntry
             let is_sel = e.id == filtered.get(selected).map_or(0, |s| s.id);
             let is_chk = state.selected_ids.contains(&e.id);
             let chk_str = if is_chk { " ☑ " } else { " ☐ " };
-            
+
             let base = if is_sel {
                 Style::default()
                     .fg(Color::Yellow)
@@ -569,26 +750,38 @@ fn draw_table(f: &mut Frame, area: Rect, state: &AppState, filtered: &[&IocEntry
             } else {
                 Style::default()
             };
-            
+
             let marker = if is_sel { "➤ " } else { "  " };
-            
-            let mut cells = vec![
-                Cell::from(format!("{}{}", marker, chk_str)).style(base),
-            ];
+
+            let mut cells = vec![Cell::from(format!("{}{}", marker, chk_str)).style(base)];
             if area.width >= 70 {
                 cells.push(Cell::from(format!("{:>3}", e.id)).style(base));
             }
-            cells.push(Cell::from(truncate(&e.value, 40)).style(base.fg(if is_sel { Color::Yellow } else { ioc_color(&e.ioc_type) })));
+            cells.push(Cell::from(truncate(&e.value, 40)).style(base.fg(if is_sel {
+                Color::Yellow
+            } else {
+                ioc_color(&e.ioc_type)
+            })));
             cells.push(Cell::from(e.ioc_type.to_string()).style(base.fg(ioc_color(&e.ioc_type))));
             if area.width >= 70 {
-                cells.push(Cell::from(e.priority.to_string()).style(base.fg(priority_color(&e.priority))));
+                cells.push(
+                    Cell::from(e.priority.to_string()).style(base.fg(priority_color(&e.priority))),
+                );
             }
-            cells.push(Cell::from(e.tag.to_string()).style(if is_sel { base } else { tag_style(&e.tag) }));
+            cells.push(Cell::from(e.tag.to_string()).style(if is_sel {
+                base
+            } else {
+                tag_style(&e.tag)
+            }));
             if area.width >= 90 {
-                let note_display = if e.note.is_empty() { String::new() } else { truncate(&e.note, 20) };
+                let note_display = if e.note.is_empty() {
+                    String::new()
+                } else {
+                    truncate(&e.note, 20)
+                };
                 cells.push(Cell::from(note_display).style(base));
             }
-            
+
             Row::new(cells)
         })
         .collect();
@@ -597,7 +790,7 @@ fn draw_table(f: &mut Frame, area: Rect, state: &AppState, filtered: &[&IocEntry
         vec![
             Constraint::Length(6),  // Sel
             Constraint::Length(5),  // ID
-            Constraint::Min(30),   // Indicator
+            Constraint::Min(30),    // Indicator
             Constraint::Length(8),  // Type
             Constraint::Length(5),  // Pri
             Constraint::Length(5),  // Tag
@@ -605,19 +798,19 @@ fn draw_table(f: &mut Frame, area: Rect, state: &AppState, filtered: &[&IocEntry
         ]
     } else if area.width >= 70 {
         vec![
-            Constraint::Length(6),  // Sel
-            Constraint::Length(5),  // ID
+            Constraint::Length(6), // Sel
+            Constraint::Length(5), // ID
             Constraint::Min(20),   // Indicator
-            Constraint::Length(8),  // Type
-            Constraint::Length(5),  // Pri
-            Constraint::Length(5),  // Tag
+            Constraint::Length(8), // Type
+            Constraint::Length(5), // Pri
+            Constraint::Length(5), // Tag
         ]
     } else {
         vec![
-            Constraint::Length(6),  // Sel
+            Constraint::Length(6), // Sel
             Constraint::Min(15),   // Indicator
-            Constraint::Length(8),  // Type
-            Constraint::Length(5),  // Tag
+            Constraint::Length(8), // Type
+            Constraint::Length(5), // Tag
         ]
     };
 
@@ -632,7 +825,7 @@ fn draw_table(f: &mut Frame, area: Rect, state: &AppState, filtered: &[&IocEntry
 
 fn draw_side_panel(f: &mut Frame, area: Rect, state: &AppState) {
     let mut lines: Vec<Line> = Vec::new();
-    
+
     let entry_opt = state.selected_entry();
     if let Some(entry) = entry_opt {
         lines.push(Line::from(vec![
@@ -701,10 +894,12 @@ fn draw_side_panel(f: &mut Frame, area: Rect, state: &AppState) {
     } else {
         lines.push(Line::from(Span::styled(
             "No indicator selected",
-            Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC),
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::ITALIC),
         )));
     }
-    
+
     if !state.entries.is_empty() {
         let mut mal = 0;
         let mut sus = 0;
@@ -721,27 +916,25 @@ fn draw_side_panel(f: &mut Frame, area: Rect, state: &AppState) {
             }
         }
         let total_tags = state.entries.len();
-        
+
         let draw_bar = |count: usize, total: usize, width: usize| -> String {
             if total == 0 {
                 return "░".repeat(width);
             }
             let filled = (count * width) / total;
-            format!(
-                "{}{}",
-                "█".repeat(filled),
-                "░".repeat(width - filled)
-            )
+            format!("{}{}", "█".repeat(filled), "░".repeat(width - filled))
         };
 
         lines.push(Line::from(""));
         lines.push(Line::from(Span::styled(
             "─ Tag Breakdown ─",
-            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
         )));
-        
+
         let bar_width = (area.width as usize).saturating_sub(15).max(6).min(20);
-        
+
         let tags_stats = [
             ("MAL", mal, Color::Red),
             ("SUS", sus, Color::Yellow),
@@ -749,13 +942,23 @@ fn draw_side_panel(f: &mut Frame, area: Rect, state: &AppState) {
             ("FP ", fp, Color::DarkGray),
             ("UNT", unt, Color::White),
         ];
-        
+
         for (label, count, color) in tags_stats {
-            let pct = if total_tags > 0 { (count * 100) / total_tags } else { 0 };
+            let pct = if total_tags > 0 {
+                (count * 100) / total_tags
+            } else {
+                0
+            };
             lines.push(Line::from(vec![
                 Span::styled(format!(" {}: ", label), Style::default().fg(color)),
-                Span::styled(draw_bar(count, total_tags, bar_width), Style::default().fg(color)),
-                Span::styled(format!(" {:>3}% ({})", pct, count), Style::default().fg(Color::Gray)),
+                Span::styled(
+                    draw_bar(count, total_tags, bar_width),
+                    Style::default().fg(color),
+                ),
+                Span::styled(
+                    format!(" {:>3}% ({})", pct, count),
+                    Style::default().fg(Color::Gray),
+                ),
             ]));
         }
     }
@@ -778,7 +981,7 @@ fn draw_status_bar(f: &mut Frame, area: Rect, state: &AppState) {
         Span::styled(" [F1-F4]", Style::default().fg(Color::Cyan)),
         Span::raw(" Go "),
     ];
-    
+
     if area.width >= 75 {
         keys.push(Span::styled(" [:]", Style::default().fg(Color::Cyan)));
         keys.push(Span::raw(" Cmd "));
@@ -787,9 +990,9 @@ fn draw_status_bar(f: &mut Frame, area: Rect, state: &AppState) {
         keys.push(Span::styled(" [?]", Style::default().fg(Color::Cyan)));
         keys.push(Span::raw(" Help "));
     }
-    
+
     keys.push(Span::raw("| "));
-    
+
     match state.active_view {
         AppView::Dashboard => {
             keys.push(Span::styled(" [I]", Style::default().fg(Color::Cyan)));
@@ -822,9 +1025,12 @@ fn draw_status_bar(f: &mut Frame, area: Rect, state: &AppState) {
             keys.push(Span::raw(" Export "));
         }
     }
-    
+
     keys.push(Span::raw("| "));
-    keys.push(Span::styled(&state.status_message, Style::default().fg(Color::Green)));
+    keys.push(Span::styled(
+        &state.status_message,
+        Style::default().fg(Color::Green),
+    ));
 
     let bar = Paragraph::new(Line::from(keys))
         .style(Style::default().bg(Color::Indexed(236)).fg(Color::White));
@@ -968,7 +1174,7 @@ fn draw_search_editor(f: &mut Frame, area: Rect, state: &AppState) {
 fn draw_sort_select(f: &mut Frame, area: Rect, state: &AppState) {
     let modal = centered_rect(45, 12, area);
     f.render_widget(Clear, modal);
-    
+
     let keys = [
         ("1", "ID", SortBy::Id),
         ("2", "Value", SortBy::Value),
@@ -976,34 +1182,51 @@ fn draw_sort_select(f: &mut Frame, area: Rect, state: &AppState) {
         ("4", "Priority", SortBy::Priority),
         ("5", "Tag", SortBy::Tag),
     ];
-    
+
     let mut lines = vec![
-        Line::from(Span::styled("  Sort Settings", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled(
+            "  Sort Settings",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        )),
         Line::from(""),
     ];
-    
+
     for (key, name, variant) in &keys {
         let is_selected = state.sort_by == *variant;
         let prefix = if is_selected { " ➤ " } else { "   " };
         let style = if is_selected {
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD)
         } else {
             Style::default().fg(Color::White)
         };
-        
+
         lines.push(Line::from(vec![
             Span::raw(prefix),
             Span::styled(format!("[{}]", key), Style::default().fg(Color::Cyan)),
             Span::styled(format!(" {}", name), style),
         ]));
     }
-    
+
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
         Span::raw("  Current Order: "),
         Span::styled(
-            format!("{} {}", state.sort_order, if state.sort_order == SortOrder::Ascending { "Ascending" } else { "Descending" }),
-            Style::default().fg(Color::Magenta).add_modifier(Modifier::BOLD),
+            format!(
+                "{} {}",
+                state.sort_order,
+                if state.sort_order == SortOrder::Ascending {
+                    "Ascending"
+                } else {
+                    "Descending"
+                }
+            ),
+            Style::default()
+                .fg(Color::Magenta)
+                .add_modifier(Modifier::BOLD),
         ),
     ]));
     lines.push(Line::from(vec![
@@ -1013,7 +1236,7 @@ fn draw_sort_select(f: &mut Frame, area: Rect, state: &AppState) {
         Span::styled("[Esc]", Style::default().fg(Color::Cyan)),
         Span::raw(" to close"),
     ]));
-    
+
     let p = Paragraph::new(lines).block(
         Block::default()
             .borders(Borders::ALL)
@@ -1027,7 +1250,7 @@ fn draw_sort_select(f: &mut Frame, area: Rect, state: &AppState) {
 fn draw_type_filter_select(f: &mut Frame, area: Rect, state: &AppState) {
     let modal = centered_rect(50, 16, area);
     f.render_widget(Clear, modal);
-    
+
     let types = [
         ("1", "IPv4", IocType::IPv4),
         ("2", "IPv6", IocType::IPv6),
@@ -1040,29 +1263,39 @@ fn draw_type_filter_select(f: &mut Frame, area: Rect, state: &AppState) {
         ("9", "CVE", IocType::CVE),
         ("0", "Crypto", IocType::BitcoinWallet),
     ];
-    
+
     let mut lines = vec![
-        Line::from(Span::styled("  Filter by IOC Type", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))),
-        Line::from(Span::styled("  (Empty = Show All)", Style::default().fg(Color::DarkGray))),
+        Line::from(Span::styled(
+            "  Filter by IOC Type",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        )),
+        Line::from(Span::styled(
+            "  (Empty = Show All)",
+            Style::default().fg(Color::DarkGray),
+        )),
         Line::from(""),
     ];
-    
+
     for (key, name, variant) in &types {
         let is_active = state.type_filters.is_empty() || state.type_filters.contains(variant);
         let chk = if is_active { " ☑ " } else { " ☐ " };
         let style = if is_active {
-            Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)
+            Style::default()
+                .fg(Color::Green)
+                .add_modifier(Modifier::BOLD)
         } else {
             Style::default().fg(Color::DarkGray)
         };
-        
+
         lines.push(Line::from(vec![
             Span::styled(chk, style),
             Span::styled(format!("[{}]", key), Style::default().fg(Color::Cyan)),
             Span::styled(format!(" {}", name), Style::default().fg(Color::White)),
         ]));
     }
-    
+
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
         Span::styled("  [A]", Style::default().fg(Color::Cyan)),
@@ -1072,7 +1305,7 @@ fn draw_type_filter_select(f: &mut Frame, area: Rect, state: &AppState) {
         Span::styled("[Esc]", Style::default().fg(Color::Cyan)),
         Span::raw(" Close"),
     ]));
-    
+
     let p = Paragraph::new(lines).block(
         Block::default()
             .borders(Borders::ALL)
@@ -1117,7 +1350,7 @@ fn draw_export_confirm(f: &mut Frame, area: Rect) {
 fn draw_delete_confirm(f: &mut Frame, area: Rect, state: &AppState) {
     let modal = centered_rect(50, 7, area);
     f.render_widget(Clear, modal);
-    
+
     let text = if state.selected_ids.is_empty() {
         let val = state.selected_entry().map_or("", |e| &e.value);
         vec![
@@ -1151,7 +1384,7 @@ fn draw_delete_confirm(f: &mut Frame, area: Rect, state: &AppState) {
             ]),
         ]
     };
-    
+
     let p = Paragraph::new(text).block(
         Block::default()
             .borders(Borders::ALL)
@@ -1192,7 +1425,7 @@ fn handle_normal_key(
     if key.modifiers.contains(KeyModifiers::CONTROL) && key.code == KeyCode::Char('c') {
         return Ok(true);
     }
-    
+
     // Tab switching
     match key.code {
         KeyCode::F(1) => {
@@ -1208,8 +1441,9 @@ fn handle_normal_key(
         KeyCode::F(3) => {
             state.active_view = AppView::LookupManager;
             state.status_message = "Lookup Manager view".to_string();
-            
-            let platforms: Vec<String> = state.selected_entry()
+
+            let platforms: Vec<String> = state
+                .selected_entry()
                 .map(|e| e.lookup_urls.iter().map(|lu| lu.platform.clone()).collect())
                 .unwrap_or_default();
             if !platforms.is_empty() {
@@ -1235,7 +1469,8 @@ fn handle_normal_key(
             };
             state.status_message = format!("Switched view to {}", state.active_view);
             if state.active_view == AppView::LookupManager {
-                let platforms: Vec<String> = state.selected_entry()
+                let platforms: Vec<String> = state
+                    .selected_entry()
                     .map(|e| e.lookup_urls.iter().map(|lu| lu.platform.clone()).collect())
                     .unwrap_or_default();
                 if !platforms.is_empty() {
@@ -1260,14 +1495,14 @@ fn handle_normal_key(
         }
         _ => {}
     }
-    
+
     match state.active_view {
         AppView::Dashboard => handle_dashboard_keys(state, key),
         AppView::TriageList => handle_triage_list_keys(state, key),
         AppView::LookupManager => handle_lookup_manager_keys(state, key),
         AppView::Settings => handle_settings_keys(state, key),
     }
-    
+
     Ok(false)
 }
 
@@ -1290,7 +1525,7 @@ fn handle_triage_list_keys(state: &mut AppState, key: KeyEvent) {
         KeyCode::Home => state.jump_home(),
         KeyCode::End => state.jump_end(),
         KeyCode::Char('o') | KeyCode::Char('O') => open_all_urls(state),
-        
+
         KeyCode::Char('t') => {
             state.cycle_tags_for_selected(true);
             state.status_message = "Tags cycled forward".to_string();
@@ -1299,7 +1534,7 @@ fn handle_triage_list_keys(state: &mut AppState, key: KeyEvent) {
             state.cycle_tags_for_selected(false);
             state.status_message = "Tags cycled backward".to_string();
         }
-        
+
         KeyCode::Char('n') => {
             state.note_buffer = state
                 .selected_entry()
@@ -1321,7 +1556,7 @@ fn handle_triage_list_keys(state: &mut AppState, key: KeyEvent) {
             state.input_buffer.clear();
             state.mode = AppMode::InputPaste;
         }
-        
+
         KeyCode::Char('/') => {
             state.mode = AppMode::SearchEditing;
         }
@@ -1367,7 +1602,10 @@ fn handle_triage_list_keys(state: &mut AppState, key: KeyEvent) {
         }
         KeyCode::Char('a') | KeyCode::Char('A') => {
             state.select_all_filtered();
-            state.status_message = format!("Selected all {} filtered entries", state.get_filtered_entries().len());
+            state.status_message = format!(
+                "Selected all {} filtered entries",
+                state.get_filtered_entries().len()
+            );
         }
         KeyCode::Char('u') | KeyCode::Char('U') => {
             state.clear_all_selection();
@@ -1387,12 +1625,12 @@ fn handle_lookup_manager_keys(state: &mut AppState, key: KeyEvent) {
         Some(e) => (e.value.clone(), e.lookup_urls.clone()),
         None => return,
     };
-    
+
     let count = lookup_urls.len();
     if count == 0 {
         return;
     }
-    
+
     match key.code {
         KeyCode::Up => {
             state.lookup_selected_index = state.lookup_selected_index.saturating_sub(1);
@@ -1444,9 +1682,11 @@ fn handle_lookup_manager_keys(state: &mut AppState, key: KeyEvent) {
             if !urls.is_empty() {
                 let joined = urls.join("\n");
                 match arboard::Clipboard::new() {
-                    Ok(mut clip) => if clip.set_text(&joined).is_ok() {
-                        state.status_message = format!("Copied {} checked URLs", urls.len());
-                    },
+                    Ok(mut clip) => {
+                        if clip.set_text(&joined).is_ok() {
+                            state.status_message = format!("Copied {} checked URLs", urls.len());
+                        }
+                    }
                     Err(_) => state.status_message = "Clipboard error".to_string(),
                 }
             }
@@ -1575,7 +1815,8 @@ fn execute_command(state: &mut AppState, cmd_str: &str) {
         }
         "tag" => {
             if parts.len() < 2 {
-                state.status_message = "Usage: :tag <clean|suspicious|malicious|fp|untagged>".to_string();
+                state.status_message =
+                    "Usage: :tag <clean|suspicious|malicious|fp|untagged>".to_string();
                 return;
             }
             let tag_val = match parts[1].to_lowercase().as_str() {
@@ -1585,11 +1826,13 @@ fn execute_command(state: &mut AppState, cmd_str: &str) {
                 "fp" | "falsepositive" => Tag::FalsePositive,
                 "untagged" | "-" => Tag::Untagged,
                 _ => {
-                    state.status_message = "Invalid tag. Choose clean, suspicious, malicious, fp, untagged".to_string();
+                    state.status_message =
+                        "Invalid tag. Choose clean, suspicious, malicious, fp, untagged"
+                            .to_string();
                     return;
                 }
             };
-            
+
             let mut tagged_val = None;
             if state.selected_ids.is_empty() {
                 if let Some(entry) = state.selected_entry_mut() {
@@ -1608,7 +1851,11 @@ fn execute_command(state: &mut AppState, cmd_str: &str) {
                         entry.tag = tag_val;
                     }
                 }
-                state.add_log(&format!("Tagged {} selected indicators as {}", ids.len(), tag_val));
+                state.add_log(&format!(
+                    "Tagged {} selected indicators as {}",
+                    ids.len(),
+                    tag_val
+                ));
                 state.status_message = format!("Tagged {} items as {}", ids.len(), tag_val);
                 state.has_unsaved_changes = true;
             }
@@ -1626,7 +1873,8 @@ fn execute_command(state: &mut AppState, cmd_str: &str) {
                 }
                 "tag" => {
                     if parts.len() < 3 {
-                        state.status_message = "Usage: :filter tag <cln|sus|mal|fp|untagged>".to_string();
+                        state.status_message =
+                            "Usage: :filter tag <cln|sus|mal|fp|untagged>".to_string();
                         return;
                     }
                     let tag_filter = match parts[2].to_lowercase().as_str() {
@@ -1646,7 +1894,9 @@ fn execute_command(state: &mut AppState, cmd_str: &str) {
                 }
                 "type" => {
                     if parts.len() < 3 {
-                        state.status_message = "Usage: :filter type <ipv4|ipv6|domain|url|hash|email|cve|bitcoin>".to_string();
+                        state.status_message =
+                            "Usage: :filter type <ipv4|ipv6|domain|url|hash|email|cve|bitcoin>"
+                                .to_string();
                         return;
                     }
                     let t = match parts[2].to_lowercase().as_str() {
@@ -1671,13 +1921,15 @@ fn execute_command(state: &mut AppState, cmd_str: &str) {
                     state.status_message = format!("Filtering by type: {}", t);
                 }
                 _ => {
-                    state.status_message = "Invalid filter command. Use tag, type, clear".to_string();
+                    state.status_message =
+                        "Invalid filter command. Use tag, type, clear".to_string();
                 }
             }
         }
         "sort" => {
             if parts.len() < 2 {
-                state.status_message = "Usage: :sort <id|value|type|priority|tag> [asc|desc]".to_string();
+                state.status_message =
+                    "Usage: :sort <id|value|type|priority|tag> [asc|desc]".to_string();
                 return;
             }
             let key = match parts[1].to_lowercase().as_str() {
@@ -1715,13 +1967,18 @@ fn execute_command(state: &mut AppState, cmd_str: &str) {
         }
         "dir" => {
             if parts.len() < 2 {
-                state.status_message = format!("Current export dir: {}", state.export_dir.display());
+                state.status_message =
+                    format!("Current export dir: {}", state.export_dir.display());
                 return;
             }
             let path = PathBuf::from(parts[1]);
             state.export_dir = path;
-            state.status_message = format!("Set export directory to {}", state.export_dir.display());
-            state.add_log(&format!("Export directory set to {}", state.export_dir.display()));
+            state.status_message =
+                format!("Set export directory to {}", state.export_dir.display());
+            state.add_log(&format!(
+                "Export directory set to {}",
+                state.export_dir.display()
+            ));
         }
         _ => {
             state.status_message = format!("Unknown command: {}", cmd);
@@ -1752,13 +2009,19 @@ fn handle_input_key(state: &mut AppState, key: KeyEvent, _config: &Config) {
                             "Limit reached! Added {} of {} (max {})",
                             allowed, count, max
                         );
-                        state.add_log(&format!("Pasted {} items, added {} of {} due to max limit", total, allowed, count));
+                        state.add_log(&format!(
+                            "Pasted {} items, added {} of {} due to max limit",
+                            total, allowed, count
+                        ));
                     } else {
                         state.status_message = format!(
                             "Parsed {} unique IOCs ({} total, {} duplicates)",
                             count, total, dupes
                         );
-                        state.add_log(&format!("Pasted & parsed {} unique IOCs ({} duplicates)", count, dupes));
+                        state.add_log(&format!(
+                            "Pasted & parsed {} unique IOCs ({} duplicates)",
+                            count, dupes
+                        ));
                     }
                     let start_id = state.entries.last().map_or(1, |e| e.id + 1);
                     for (i, e) in new_entries.iter_mut().enumerate() {
@@ -1823,7 +2086,10 @@ fn handle_search_key(state: &mut AppState, key: KeyEvent) {
             state.mode = AppMode::Normal;
             let count = state.get_filtered_entries().len();
             state.status_message = format!("Search applied: {} matching entries", count);
-            state.add_log(&format!("Search filter applied for '{}'", state.search_query));
+            state.add_log(&format!(
+                "Search filter applied for '{}'",
+                state.search_query
+            ));
             state.selected_index = 0;
         }
         KeyCode::Char(c) => {
@@ -1911,7 +2177,7 @@ fn handle_export_key(state: &mut AppState, key: KeyEvent, config: &Config) {
             let mut state_config = config.clone();
             state_config.export_dir = state.export_dir.clone();
             state_config.max_ioc_limit = state.max_ioc_limit;
-            
+
             match export::export_json(state, &state_config) {
                 Ok(path) => {
                     state.status_message = format!("Exported JSON: {}", path);
@@ -1925,7 +2191,7 @@ fn handle_export_key(state: &mut AppState, key: KeyEvent, config: &Config) {
             let mut state_config = config.clone();
             state_config.export_dir = state.export_dir.clone();
             state_config.max_ioc_limit = state.max_ioc_limit;
-            
+
             match export::export_csv(state, &state_config) {
                 Ok(path) => {
                     state.status_message = format!("Exported CSV: {}", path);
@@ -1962,7 +2228,9 @@ fn handle_delete_key(state: &mut AppState, key: KeyEvent) {
 }
 
 fn open_all_urls(state: &mut AppState) {
-    let info = state.selected_entry().map(|e| (e.value.clone(), e.lookup_urls.clone()));
+    let info = state
+        .selected_entry()
+        .map(|e| (e.value.clone(), e.lookup_urls.clone()));
     if let Some((val, urls)) = info {
         let count = urls.len();
         for url in urls {
@@ -1974,7 +2242,9 @@ fn open_all_urls(state: &mut AppState) {
 }
 
 fn open_url_by_index(state: &mut AppState, idx: usize) {
-    let info = state.selected_entry().map(|e| (e.value.clone(), e.lookup_urls.clone()));
+    let info = state
+        .selected_entry()
+        .map(|e| (e.value.clone(), e.lookup_urls.clone()));
     if let Some((val, urls)) = info {
         if let Some(lu) = urls.get(idx) {
             let url = lu.url.clone();
@@ -1988,7 +2258,10 @@ fn open_url_by_index(state: &mut AppState, idx: usize) {
 
 fn copy_to_clipboard(state: &mut AppState) {
     let text_to_copy = if state.selected_ids.is_empty() {
-        state.selected_entry().map(|e| e.value.clone()).unwrap_or_default()
+        state
+            .selected_entry()
+            .map(|e| e.value.clone())
+            .unwrap_or_default()
     } else {
         let selected_set = &state.selected_ids;
         let mut values = Vec::new();
@@ -1999,18 +2272,19 @@ fn copy_to_clipboard(state: &mut AppState) {
         }
         values.join("\n")
     };
-    
+
     if text_to_copy.is_empty() {
         return;
     }
-    
+
     match arboard::Clipboard::new() {
         Ok(mut clip) => match clip.set_text(&text_to_copy) {
             Ok(_) => {
                 if state.selected_ids.is_empty() {
                     state.status_message = format!("Copied: {}", truncate(&text_to_copy, 30));
                 } else {
-                    state.status_message = format!("Copied {} selected values", state.selected_ids.len());
+                    state.status_message =
+                        format!("Copied {} selected values", state.selected_ids.len());
                 }
             }
             Err(e) => state.status_message = format!("Clipboard error: {}", e),

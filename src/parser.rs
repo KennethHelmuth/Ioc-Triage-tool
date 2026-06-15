@@ -279,17 +279,17 @@ mod tests {
         let (entries, _, _) = parse_iocs("BTC: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa");
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].ioc_type, IocType::BitcoinWallet);
-        
+
         // SegWit BTC
         let (entries2, _, _) = parse_iocs("bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh");
         assert_eq!(entries2.len(), 1);
         assert_eq!(entries2[0].ioc_type, IocType::BitcoinWallet);
-        
+
         // Ethereum ETH
         let (entries3, _, _) = parse_iocs("0x71C7656EC7ab88b098defB751B7401B5f6d8976F");
         assert_eq!(entries3.len(), 1);
         assert_eq!(entries3[0].ioc_type, IocType::BitcoinWallet);
-        
+
         // Monero XMR
         let (entries4, _, _) = parse_iocs("4aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         assert_eq!(entries4.len(), 1);

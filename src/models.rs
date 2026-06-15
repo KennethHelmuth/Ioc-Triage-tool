@@ -284,7 +284,9 @@ impl AppState {
             entries: Vec::new(),
             selected_index: 0,
             mode: AppMode::Normal,
-            status_message: String::from("Console initialized. Press 'I' to paste raw text or ':' for command palette."),
+            status_message: String::from(
+                "Console initialized. Press 'I' to paste raw text or ':' for command palette.",
+            ),
             input_buffer: String::new(),
             note_buffer: String::new(),
             show_side_panel: true,
@@ -318,7 +320,8 @@ impl AppState {
     /// Add a message to the internal session history log feed
     pub fn add_log(&mut self, message: &str) {
         let timestamp = chrono::Utc::now().format("%H:%M:%S").to_string();
-        self.session_logs.push(format!("{} - {}", timestamp, message));
+        self.session_logs
+            .push(format!("{} - {}", timestamp, message));
         if self.session_logs.len() > 100 {
             self.session_logs.remove(0);
         }
@@ -447,7 +450,7 @@ impl AppState {
             let val = to_delete.value.clone();
             self.entries.retain(|e| e.id != id_to_delete);
             self.selected_ids.remove(&id_to_delete);
-            
+
             // Adjust selected index if it is now out of bounds of the new filtered list
             let new_count = self.get_filtered_entries().len();
             if self.selected_index >= new_count && new_count > 0 {
@@ -521,7 +524,7 @@ impl AppState {
             let selected = self.selected_ids.clone();
             self.entries.retain(|e| !selected.contains(&e.id));
             self.selected_ids.clear();
-            
+
             // Adjust selected index
             let new_count = self.get_filtered_entries().len();
             if self.selected_index >= new_count && new_count > 0 {
@@ -543,7 +546,13 @@ mod tests {
     use super::*;
     use chrono::Utc;
 
-    fn make_test_entry(id: usize, value: &str, ioc_type: IocType, priority: Priority, tag: Tag) -> IocEntry {
+    fn make_test_entry(
+        id: usize,
+        value: &str,
+        ioc_type: IocType,
+        priority: Priority,
+        tag: Tag,
+    ) -> IocEntry {
         IocEntry {
             id,
             value: value.to_string(),
@@ -560,10 +569,34 @@ mod tests {
     fn test_searching_and_filtering() {
         let mut state = AppState::new();
         state.entries = vec![
-            make_test_entry(1, "192.168.1.1", IocType::IPv4, Priority::Medium, Tag::Malicious),
-            make_test_entry(2, "evil.com", IocType::Domain, Priority::Medium, Tag::Suspicious),
-            make_test_entry(3, "clean-domain.com", IocType::Domain, Priority::Medium, Tag::Clean),
-            make_test_entry(4, "attacker@evil.com", IocType::Email, Priority::Low, Tag::Malicious),
+            make_test_entry(
+                1,
+                "192.168.1.1",
+                IocType::IPv4,
+                Priority::Medium,
+                Tag::Malicious,
+            ),
+            make_test_entry(
+                2,
+                "evil.com",
+                IocType::Domain,
+                Priority::Medium,
+                Tag::Suspicious,
+            ),
+            make_test_entry(
+                3,
+                "clean-domain.com",
+                IocType::Domain,
+                Priority::Medium,
+                Tag::Clean,
+            ),
+            make_test_entry(
+                4,
+                "attacker@evil.com",
+                IocType::Email,
+                Priority::Low,
+                Tag::Malicious,
+            ),
         ];
 
         // Search filter
@@ -596,7 +629,13 @@ mod tests {
         state.entries = vec![
             make_test_entry(1, "b.com", IocType::Domain, Priority::Low, Tag::Clean),
             make_test_entry(2, "a.com", IocType::Domain, Priority::High, Tag::Malicious),
-            make_test_entry(3, "c.com", IocType::Domain, Priority::Medium, Tag::Suspicious),
+            make_test_entry(
+                3,
+                "c.com",
+                IocType::Domain,
+                Priority::Medium,
+                Tag::Suspicious,
+            ),
         ];
 
         // Sort by Value (Ascending)

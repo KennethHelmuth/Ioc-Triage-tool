@@ -10,9 +10,9 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use models::{AppState, AppMode};
+use models::{AppMode, AppState};
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::io::{self, Read, IsTerminal};
+use std::io::{self, IsTerminal, Read};
 use std::panic;
 
 fn main() -> anyhow::Result<()> {
@@ -53,7 +53,10 @@ fn main() -> anyhow::Result<()> {
             "Loaded {} unique IOCs from input ({} total, {} duplicates)",
             count, total, dupes
         );
-        state.add_log(&format!("Imported {} unique indicators ({} total)", count, total));
+        state.add_log(&format!(
+            "Imported {} unique indicators ({} total)",
+            count, total
+        ));
     }
 
     // Main event loop
@@ -85,8 +88,12 @@ fn read_initial_input() -> anyhow::Result<Option<String>> {
             println!("🛡️  IOC Triage Console — Help");
             println!("\nUsage:");
             println!("  ioc-triage                  Interactive mode (starts with paste modal)");
-            println!("  ioc-triage <file>           Parse IOCs from <file> and start triage console");
-            println!("  cat logs.txt | ioc-triage   Parse IOCs from stdin pipe and start triage console");
+            println!(
+                "  ioc-triage <file>           Parse IOCs from <file> and start triage console"
+            );
+            println!(
+                "  cat logs.txt | ioc-triage   Parse IOCs from stdin pipe and start triage console"
+            );
             std::process::exit(0);
         }
         let content = std::fs::read_to_string(path)?;

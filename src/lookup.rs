@@ -27,7 +27,10 @@ pub fn generate_lookup_urls(value: &str, ioc_type: &IocType) -> Vec<LookupUrl> {
             },
             LookupUrl {
                 platform: "Cisco Talos".to_string(),
-                url: format!("https://talosintelligence.com/reputation_center/lookup?search={}", value),
+                url: format!(
+                    "https://talosintelligence.com/reputation_center/lookup?search={}",
+                    value
+                ),
             },
         ],
 
@@ -50,7 +53,10 @@ pub fn generate_lookup_urls(value: &str, ioc_type: &IocType) -> Vec<LookupUrl> {
             },
             LookupUrl {
                 platform: "Cisco Talos".to_string(),
-                url: format!("https://talosintelligence.com/reputation_center/lookup?search={}", value),
+                url: format!(
+                    "https://talosintelligence.com/reputation_center/lookup?search={}",
+                    value
+                ),
             },
             LookupUrl {
                 platform: "CRT.sh".to_string(),
@@ -85,7 +91,7 @@ pub fn generate_lookup_urls(value: &str, ioc_type: &IocType) -> Vec<LookupUrl> {
             } else {
                 format!("https://bazaar.abuse.ch/browse.php?search=sha1:{}", value)
             };
-            
+
             vec![
                 LookupUrl {
                     platform: "VirusTotal".to_string(),
@@ -160,34 +166,33 @@ pub fn generate_lookup_urls(value: &str, ioc_type: &IocType) -> Vec<LookupUrl> {
                 ]
             } else if value.starts_with("4") && value.len() == 95 {
                 // Monero
-                vec![
-                    LookupUrl {
-                        platform: "XMRChain".to_string(),
-                        url: format!("https://xmrchain.net/search?value={}", value),
-                    },
-                ]
-            } else if val_lower.starts_with("ltc1") || (value.starts_with("L") && value.len() >= 26 && value.len() <= 35) {
+                vec![LookupUrl {
+                    platform: "XMRChain".to_string(),
+                    url: format!("https://xmrchain.net/search?value={}", value),
+                }]
+            } else if val_lower.starts_with("ltc1")
+                || (value.starts_with("L") && value.len() >= 26 && value.len() <= 35)
+            {
                 // Litecoin
-                vec![
-                    LookupUrl {
-                        platform: "Blockchair (LTC)".to_string(),
-                        url: format!("https://blockchair.com/litecoin/address/{}", value),
-                    },
-                ]
+                vec![LookupUrl {
+                    platform: "Blockchair (LTC)".to_string(),
+                    url: format!("https://blockchair.com/litecoin/address/{}", value),
+                }]
             } else if value.starts_with("D") && value.len() >= 26 && value.len() <= 35 {
                 // Dogecoin
-                vec![
-                    LookupUrl {
-                        platform: "Blockchair (DOGE)".to_string(),
-                        url: format!("https://blockchair.com/dogecoin/address/{}", value),
-                    },
-                ]
+                vec![LookupUrl {
+                    platform: "Blockchair (DOGE)".to_string(),
+                    url: format!("https://blockchair.com/dogecoin/address/{}", value),
+                }]
             } else {
                 // Bitcoin
                 vec![
                     LookupUrl {
                         platform: "Blockchain.com".to_string(),
-                        url: format!("https://www.blockchain.com/explorer/addresses/btc/{}", value),
+                        url: format!(
+                            "https://www.blockchain.com/explorer/addresses/btc/{}",
+                            value
+                        ),
                     },
                     LookupUrl {
                         platform: "Blockchair".to_string(),
@@ -195,7 +200,7 @@ pub fn generate_lookup_urls(value: &str, ioc_type: &IocType) -> Vec<LookupUrl> {
                     },
                 ]
             }
-        },
+        }
 
         IocType::Unknown => Vec::new(),
     }
@@ -224,7 +229,7 @@ fn base64_urlsafe_encode(input: &str) -> String {
     const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
     let bytes = input.as_bytes();
     let mut result = String::with_capacity((bytes.len() + 2) / 3 * 4);
-    
+
     let mut chunks = bytes.chunks_exact(3);
     while let Some(chunk) = chunks.next() {
         let n = ((chunk[0] as u32) << 16) | ((chunk[1] as u32) << 8) | (chunk[2] as u32);
@@ -233,7 +238,7 @@ fn base64_urlsafe_encode(input: &str) -> String {
         result.push(ALPHABET[((n >> 6) & 63) as usize] as char);
         result.push(ALPHABET[(n & 63) as usize] as char);
     }
-    
+
     let remainder = chunks.remainder();
     if remainder.len() == 1 {
         let n = (remainder[0] as u32) << 16;
@@ -245,7 +250,7 @@ fn base64_urlsafe_encode(input: &str) -> String {
         result.push(ALPHABET[((n >> 12) & 63) as usize] as char);
         result.push(ALPHABET[((n >> 6) & 63) as usize] as char);
     }
-    
+
     result
 }
 
@@ -256,7 +261,10 @@ mod tests {
     #[test]
     fn test_base64_urlsafe_encode() {
         assert_eq!(base64_urlsafe_encode("hello"), "aGVsbG8");
-        assert_eq!(base64_urlsafe_encode("https://evil.com"), "aHR0cHM6Ly9ldmlsLmNvbQ");
+        assert_eq!(
+            base64_urlsafe_encode("https://evil.com"),
+            "aHR0cHM6Ly9ldmlsLmNvbQ"
+        );
         assert_eq!(base64_urlsafe_encode("a"), "YQ");
         assert_eq!(base64_urlsafe_encode("ab"), "YWI");
         assert_eq!(base64_urlsafe_encode("abc"), "YWJj");
@@ -265,6 +273,9 @@ mod tests {
     #[test]
     fn test_url_encode() {
         assert_eq!(url_encode("hello world"), "hello%20world");
-        assert_eq!(url_encode("https://evil.com/path?query=1"), "https%3A%2F%2Fevil.com%2Fpath%3Fquery%3D1");
+        assert_eq!(
+            url_encode("https://evil.com/path?query=1"),
+            "https%3A%2F%2Fevil.com%2Fpath%3Fquery%3D1"
+        );
     }
 }
