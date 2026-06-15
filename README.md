@@ -116,11 +116,12 @@ cargo run
 
 ### Quick Start
 
-1. **Launch**: `cargo run` (or `./target/release/ioc-triage`)
-2. **Paste IOCs**: The paste modal opens automatically — paste your raw IOC text
-3. **Confirm**: Press `Enter` twice to parse
-4. **Triage**: Navigate, tag, add notes, and open lookups
-5. **Export**: Press `E` to export your session
+1. **Launch**:
+   - **Interactive**: `cargo run` (presents paste modal)
+   - **File Argument**: `cargo run -- suspicious.txt` (or `./target/release/ioc-triage suspicious.txt`)
+   - **Piped Stdin**: `cat logs.txt | cargo run`
+2. **Triage**: Navigate, multi-select, tag, add notes, search, filter, and open lookups
+3. **Export**: Press `E` to export your session
 
 ### Keybindings
 
@@ -129,15 +130,21 @@ cargo run
 | `↑` / `↓` | Navigate rows |
 | `PgUp` / `PgDn` | Jump 10 rows |
 | `Home` / `End` | Jump to first/last row |
-| `I` | Paste new IOCs |
-| `O` | Open all lookup URLs in browser |
+| `Space` | Toggle multi-select checkbox for row |
+| `A` / `U` | Select all / Unselect all filtered rows |
+| `/` | Enter search query mode (filters by value/notes) |
+| `F` / `Shift+F` | Cycle tag filter forward / backward |
+| `Y` | Open interactive type filter modal |
+| `S` | Open interactive sorting modal |
+| `x` | Reset/Clear all active search and filters |
+| `I` | Paste new IOCs (adds to session) |
+| `O` | Open all lookup URLs in browser (supports bulk) |
 | `1-9` | Open specific lookup URL by number |
-| `T` | Cycle tag forward |
-| `Shift+T` | Cycle tag backward |
+| `T` / `Shift+T` | Cycle tag forward / backward (supports bulk) |
 | `N` | Edit note for selected indicator |
 | `E` | Export session (JSON or CSV) |
-| `C` | Copy indicator value to clipboard |
-| `D` | Delete selected indicator |
+| `C` | Copy indicator value to clipboard (supports bulk) |
+| `D` | Delete selected indicator (supports bulk) |
 | `?` | Show help overlay |
 | `Q` / `Ctrl+C` | Quit |
 

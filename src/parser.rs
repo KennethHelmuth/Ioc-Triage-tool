@@ -27,7 +27,8 @@ lazy_static! {
         Regex::new(r"(?i)\b[a-fA-F0-9]{32}\b").expect("Invalid MD5 regex");
 
     static ref RE_BITCOIN: Regex =
-        Regex::new(r"\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\b").expect("Invalid Bitcoin regex");
+        Regex::new(r"\b[13LMDr][a-km-zA-HJ-NP-Z1-9]{25,34}\b|\b(?i:(?:bc|ltc)1[a-z0-9]{39,90})\b|\b(?i:0x[a-f0-9]{40})\b|\b4[0-9a-zA-Z]{94}\b")
+            .expect("Invalid Crypto Wallet regex");
 
     static ref RE_IPV4: Regex =
         Regex::new(r"\b((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)\b")
@@ -274,9 +275,25 @@ mod tests {
 
     #[test]
     fn test_parse_bitcoin() {
+        // Legacy BTC / LTC / DOGE / XRP Base58Check
         let (entries, _, _) = parse_iocs("BTC: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa");
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].ioc_type, IocType::BitcoinWallet);
+        
+        // SegWit BTC
+        let (entries2, _, _) = parse_iocs("bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh");
+        assert_eq!(entries2.len(), 1);
+        assert_eq!(entries2[0].ioc_type, IocType::BitcoinWallet);
+        
+        // Ethereum ETH
+        let (entries3, _, _) = parse_iocs("0x71C7656EC7ab88b098defB751B7401B5f6d8976F");
+        assert_eq!(entries3.len(), 1);
+        assert_eq!(entries3[0].ioc_type, IocType::BitcoinWallet);
+        
+        // Monero XMR
+        let (entries4, _, _) = parse_iocs("4aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        assert_eq!(entries4.len(), 1);
+        assert_eq!(entries4[0].ioc_type, IocType::BitcoinWallet);
     }
 
     #[test]
